@@ -66,6 +66,17 @@ impl<S> PostgresStorage<S> {
         Ok(Arc::new(Self { pool, serializer }))
     }
 
+    pub async fn open_with_pool(
+        pool: PgPool,
+        serializer: S,
+    ) -> Result<Arc<Self>, PostgresStorageError<Infallible>> {
+        sqlx::query(include_str!("postgres_storage/queries/create_teloxide_dialogues.sql"))
+            .execute(&pool)
+            .await?;
+
+        Ok(Arc::new(Self { pool, serializer }))
+    }
+
     async fn get_dialogue(
         self: Arc<Self>,
         ChatId(chat_id): ChatId,
